@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SauceDemo Automated Test Suite (Selenium + Python)
 
 Automated test suite covering the SauceDemo web app (https://www.saucedemo.com/)
@@ -74,3 +75,7 @@ python -m unittest tests.test_login.LoginTests.test_valid_login_standard_user
 - `problem_user` and `visual_user` intentionally have UI bugs — if you want to test *for* those bugs specifically, write assertions that expect the broken behavior (e.g., mismatched images) rather than reusing the standard test cases as-is.
 - All waits use explicit `WebDriverWait` (no hardcoded `time.sleep()`), so tests should be stable across normal network conditions.
 - Each test class runs against a fresh browser session (`setUp`/`tearDown`) for isolation.
+=======
+# automated-testcases
+Automated Test Cases for Selenium
+>>>>>>> e67e2d8d6bd349ff93a2f252a49917ad2f99325e
