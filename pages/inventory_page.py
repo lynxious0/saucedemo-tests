@@ -1,73 +1,74 @@
+import time
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from pages.base_page import BasePage
 
-
 class InventoryPage(BasePage):
-    HEADER_LABEL = (By.CLASS_NAME, "app_logo")
-    INVENTORY_ITEM = (By.CLASS_NAME, "inventory_item")
-    CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
-    CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
-    SORT_DROPDOWN = (By.CLASS_NAME, "product_sort_container")
-    ITEM_NAME = (By.CLASS_NAME, "inventory_item_name")
-    ITEM_PRICE = (By.CLASS_NAME, "inventory_item_price")
-    BURGER_MENU = (By.ID, "react-burger-menu-btn")
-    ABOUT_LINK = (By.ID, "about_sidebar_link")
-    LOGOUT_LINK = (By.ID, "logout_sidebar_link")
-    RESET_LINK = (By.ID, "reset_sidebar_link")
+    def __init__(self, driver):
+        super().__init__(driver)
+        self.INVENTORY_CONTAINER = (By.ID, "inventory_container")
+        self.ITEM_CARDS = (By.CLASS_NAME, "inventory_item")
+        self.ITEM_NAMES = (By.CLASS_NAME, "inventory_item_name")
+        self.ITEM_PRICES = (By.CLASS_NAME, "inventory_item_price")
+        self.SORT_DROPDOWN = (By.CLASS_NAME, "product_sort_container")
+        self.CART_BUTTON = (By.CLASS_NAME, "shopping_cart_link")
+        self.CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
 
     def is_loaded(self):
-        return self.is_visible(self.HEADER_LABEL)
+        return self.is_visible(self.INVENTORY_CONTAINER)
 
     def get_item_count(self):
-        try:
-            return len(self.find_all(self.INVENTORY_ITEM))
-        except:
-            return 0
+        return len(self.find_all(self.ITEM_CARDS))
 
     def get_item_names(self):
-        return [el.text for el in self.find_all(self.ITEM_NAME)]
+        elements = self.find_all(self.ITEM_NAMES)
+        return [el.text for el in elements]
 
     def get_item_prices(self):
-        return [float(el.text.replace("$", "")) for el in self.find_all(self.ITEM_PRICE)]
+        elements = self.find_all(self.ITEM_PRICES)
+        return [float(el.text.replace("$", "")) for el in elements]
 
-    def click_item_name(self, name):
-        items = self.find_all(self.ITEM_NAME)
-        for item in items:
-            if item.text == name:
-                item.click()
-                break
-
-    def sort_by(self, option_value):
-        select = Select(self.find(self.SORT_DROPDOWN))
-        select.select_by_value(option_value)
-
-    def get_cart_badge_count(self):
-        if self.is_visible(self.CART_BADGE):
-            return int(self.get_text(self.CART_BADGE))
-        return 0
+    def sort_by(self, value):
+        from selenium.webdriver.support.ui import Select
+        dropdown = Select(self.find(self.SORT_DROPDOWN))
+        dropdown.select_by_value(value)
 
     def add_item_to_cart_by_name(self, name):
-        formatted_name = name.lower().replace(" ", "-")
-        locator = (By.ID, f"add-to-cart-{formatted_name}")
-        self.click(locator)
+        button_id = f"add-to-cart-{name.lower().replace(' ', '-')}"
+        self.click((By.ID, button_id))
 
     def remove_item_from_cart_by_name(self, name):
-        formatted_name = name.lower().replace(" ", "-")
-        locator = (By.ID, f"remove-{formatted_name}")
-        self.click(locator)
+        button_id = f"remove-{name.lower().replace(' ', '-')}"
+        self.click((By.ID, button_id))
+
+    def get_cart_badge_count(self):
+        try:
+            return int(self.find(self.CART_BADGE).text)
+        except Exception:
+            return 0
+
+    def click_item_name(self, name):
+        elements = self.find_all(self.ITEM_NAMES)
+        for el in elements:
+            if el.text == name:
+                el.click()
+                break
 
     def go_to_cart(self):
-        self.click(self.CART_LINK)
+        self.click(self.CART_BUTTON)
+
+    def open_sidebar(self):
+        self.click((By.ID, "react-burger-menu-btn"))
+        time.sleep(1)
 
     def click_about(self):
-        self.click(self.BURGER_MENU)
-        self.click(self.ABOUT_LINK)
+        self.open_sidebar()
+        self.click((By.ID, "about_sidebar_link"))
 
     def logout(self):
-        self.click(self.BURGER_MENU)
-        self.click(self.LOGOUT_LINK)
+        self.open_sidebar()
+        self.click((By.ID, "logout_sidebar_link"))
 
     def reset_app_state(self):
-        self.click(self.BURGER_MENU)
-        self.click(self.RESET_LINK)
+        self.open_sidebar()
+        self.click((By.ID, "reset_sidebar_link"))
+        time.sleep(0.5)
